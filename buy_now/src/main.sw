@@ -64,9 +64,9 @@ impl NftMarketplace for Contract {
         require(current_admin.is_some() && msg_sender().unwrap() == current_admin.unwrap(), AccessError::SenderCannotSetAccessControl);
         storage.admin = admin;
 
-        // log(AdminChangedEvent {
-        //     mew_admin: admin.unwrap(),
-        // });
+        log(AdminChangedEvent {
+            mew_admin: admin.unwrap(),
+        });
     }
 
     #[storage(read, write)]
@@ -90,11 +90,11 @@ impl NftMarketplace for Contract {
         };
         storage.list_nft.insert((Option::Some(id), token_id), nft);
 
-        // log(NFTListedEvent {
-        //     owner: msg_sender().unwrap(),
-        //     nft_contract: id,
-        //     token_id: token_id,
-        //     price: price,
-        // });
+        log(NFTListedEvent {
+            owner: msg_sender().unwrap(),
+            nft_contract: id,
+            token_id: token_id,
+            price: price,
+        });
     }
 }
