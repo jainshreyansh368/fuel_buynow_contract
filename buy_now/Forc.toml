@@ -1,0 +1,11 @@
+[project]
+authors = ["shreyansh jain"]
+entry = "main.sw"
+license = "Apache-2.0"
+name = "buy_now"
+
+[constants]
+FUEL = { type = "b256", value = "0x8900c5bec4ca97d4febf9ceb4754a60d782abbf3cd815836c1872116f203f861" }
+OWNER = { type = "b256", value = "0x6b63804cfbf9856e68e5b6e7aef238dc8311ec55bec04df774003a2c96e0418e" }
+
+[dependencies]
