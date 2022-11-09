@@ -158,4 +158,43 @@ impl NftMarketplace for Contract {
             price: price,
         });
     }
+
+    #[storage(read, write)]
+    fn buy_nft(id: ContractId, token_id: u64) {
+        require(storage.nft_listed.get((Option::Some(id), token_id)), AccessError::NFTNotListed);
+
+        let nft_contract: b256 = id.into();
+        let this_contract = Identity::ContractId(contract_id());
+
+        let nft_data = storage.list_nft.get((Option::Some(id), token_id));
+
+        let protocol_amount = (nft_data.price * storage.protocol_fee) / 100;
+        let user_amount = nft_data.price - protocol_amount;
+
+        // protocol fee
+        transfer(protocol_amount, ~ContractId::from(FUEL), this_contract);
+
+        // user amount
+        transfer(user_amount, ~ContractId::from(FUEL), msg_sender().unwrap());
+
+        // todo ContractNotInInputs error
+        let x = abi(externalAbi, nft_contract);
+        x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
+        storage.nft_listed.insert((Option::Some(id), token_id), false);
+
+
+        // TODO: if we have `nft_listed` field in the contract we don't need to update/write in the contract
+        // let nft = ListNft{
+        //     owner: Option::None(),
+        //     price: price,
+        // };
+        // storage.list_nft.insert((Option::Some(id), token_id), nft);
+        log(NFTBoughtEvent {
+            buyer: msg_sender().unwrap(),
+            seller: nft_data.owner,
+            nft_contract: id,
+            token_id: token_id,
+            price: nft_data.price,
+        });
+    }
 }
