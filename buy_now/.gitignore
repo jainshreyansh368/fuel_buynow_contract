@@ -1,5 +1,4 @@
 out
 target
-Cargo.toml
-Forc.toml
-
+Cargo.lock
+Forc.lock
