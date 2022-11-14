@@ -18,6 +18,7 @@ use events::{
     NFTListedEvent,
     NFTPriceChangeEvent,
     NFTOfferEvent,
+    NFTOfferAcceptEvent,
     NFTChangeOfferEvent,
 };
 use interface::NftMarketplace;
@@ -195,6 +196,47 @@ impl NftMarketplace for Contract {
             nft_contract: id,
             token_id: token_id,
             price: nft_data.price,
+        });
+    }
+
+    #[storage(read, write)]
+    fn accept_offer(id: ContractId, token_id: u64, price: u64) {
+        require(storage.nft_listed.get((Option::Some(id), token_id)), AccessError::NFTNotListed);
+        
+        let nft_contract: b256 = id.into();
+        let data = storage.offer_nft.get((Option::Some(id), token_id));
+        require(data.offerer.is_some(), InputError::OffererNotExists);
+        require(data.offerer.unwrap() == msg_sender().unwrap(), AccessError::SenderDidNotMakeOffer);
+
+        // close the offer
+        let nft = OfferNft{
+            offerer: Option::Some(msg_sender().unwrap()),
+            price: 0,
+        }; 
+        
+        let protocol_amount = (nft.price * storage.protocol_fee) / 100;
+        let user_amount = nft.price - protocol_amount;
+        let this_contract = Identity::ContractId(contract_id());
+
+        storage.offer_nft.insert((Option::Some(id), token_id), nft);
+
+
+        // protocol fee
+        transfer(protocol_amount, ~ContractId::from(FUEL), this_contract);
+
+        // user amount
+        transfer(user_amount, ~ContractId::from(FUEL), msg_sender().unwrap());
+
+        let x = abi(externalAbi, nft_contract);
+        x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
+        storage.nft_listed.insert((Option::Some(id), token_id), false);
+
+        log(NFTOfferAcceptEvent {
+            offerer: msg_sender().unwrap(),
+            owner: Identity::ContractId(id),
+            nft_contract: id,
+            token_id: token_id,
+            price: price,
         });
     }
 }
