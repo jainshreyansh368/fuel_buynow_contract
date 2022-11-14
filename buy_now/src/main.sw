@@ -199,7 +199,6 @@ impl NftMarketplace for Contract {
         });
     }
 
-
     #[storage(read, write)]
     fn accept_offer(id: ContractId, token_id: u64, price: u64) {
         require(storage.nft_listed.get((Option::Some(id), token_id)), AccessError::NFTNotListed);
@@ -240,5 +239,4 @@ impl NftMarketplace for Contract {
             price: price,
         });
     }
-
 }
