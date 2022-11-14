@@ -239,4 +239,25 @@ impl NftMarketplace for Contract {
             price: price,
         });
     }
+
+    #[storage(read, write)]
+    fn change_nft_price(id: ContractId, token_id: u64, new_price: u64) {
+        require(storage.nft_listed.get((Option::Some(id), token_id)), AccessError::NFTNotListed);
+        let nft_data = storage.list_nft.get((Option::Some(id), token_id));
+        require(nft_data.owner == msg_sender().unwrap(), AccessError::SenderNotOwner);
+
+        let nft = ListNft {
+            owner: msg_sender().unwrap(),
+            price: new_price,
+        };
+        storage.list_nft.insert((Option::Some(id), token_id), nft);
+
+        log(NFTPriceChangeEvent {
+            owner: msg_sender().unwrap(),
+            nft_contract: id,
+            token_id: token_id,
+            old_price: nft_data.price,
+            new_price: new_price,
+        });
+    }
 }
