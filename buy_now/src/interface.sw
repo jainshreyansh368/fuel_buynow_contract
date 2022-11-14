@@ -43,4 +43,10 @@ abi NftMarketplace {
 
     #[storage(read, write)]
     fn make_offer(id: ContractId, token_id: u64, price: u64);
+
+    #[storage(read, write)]
+    fn buy_nft(id: ContractId, token_id: u64);
+
+    #[storage(read, write)]
+    fn accept_offer(id: ContractId, token_id: u64, price: u64);
 }
