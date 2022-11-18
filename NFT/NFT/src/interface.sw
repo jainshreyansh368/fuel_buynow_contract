@@ -3,7 +3,7 @@ library interface;
 dep data_structures;
 
 use data_structures::TokenMetaData;
-use std::{identity::Identity, option::Option};
+use std::{identity::Identity, option::Option, vec::Vec};
 
 pub struct AdminEvent {
     /// The user which is now the admin of this contract.
@@ -225,6 +225,9 @@ abi NFT {
     /// * When the sender is not approved to transfer all tokens on the owner's behalf.
     #[storage(read, write)]
     fn transfer_from(from: Identity, to: Identity, token_id: u64);
+
+    #[storage(read, write)]
+    fn bundle_transfer_from(from: Identity, to: Identity, token_ids: Vec<u64>);
 }
 
 pub struct OperatorEvent {
