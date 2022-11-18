@@ -261,4 +261,38 @@ impl NFT for Contract {
             token_id,
         });
     }
+
+    #[storage(read, write)]
+    fn bundle_transfer_from(from: Identity, to: Identity, token_ids: Vec<u64>) {
+        let sender = msg_sender().unwrap();
+        let mut index = 0;
+        while index < token_ids.len() {
+            // Make sure the `token_id` maps to an existing token
+            let token_owner = storage.owners.get(token_ids.get(index).unwrap());
+            require(token_owner.is_some(), InputError::TokenDoesNotExist);
+            let token_owner = token_owner.unwrap();
+
+            // Ensure that the sender is either:
+            // 1. The owner of the token
+            // 2. Approved for transfer of this `token_id`
+            // 3. Has operator approval for the `from` identity and this token belongs to the `from` identity
+            let approved = storage.approved.get(token_ids.get(index).unwrap());
+            require(sender == token_owner || (approved.is_some() && sender == approved.unwrap()) || (from == token_owner && storage.operator_approval.get((from, sender, ))), AccessError::SenderNotOwnerOrApproved);
+            // Set the new owner of the token and reset the approved Identity
+            storage.owners.insert(token_ids.get(index).unwrap(), Option::Some(to));
+            if approved.is_some() {
+                storage.approved.insert(token_ids.get(index).unwrap(), Option::None());
+            }
+        }
+
+        storage.balances.insert(from, storage.balances.get(from) - token_ids.len());
+        storage.balances.insert(to, storage.balances.get(to) + token_ids.len());
+
+        // log(TransferEvent {
+        //     from,
+        //     sender,
+        //     to,
+        //     token_id,
+        // });
+    }
 }
