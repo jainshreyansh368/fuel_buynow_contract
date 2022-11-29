@@ -6,3 +6,7 @@ NFT/NFT/Cargo.lock
 NFT/NFT/Forc.lock
 NFT/NFT/out
 NFT/NFT/target
+auction-contract/Cargo.lock
+auction-contract/Forc.lock
+auction-contract/out
+auction-contract/target
