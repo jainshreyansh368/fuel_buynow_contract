@@ -152,7 +152,7 @@ impl NFT for Contract {
     }
 
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity) {
+    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[59], creators: [Identity; 5]) {
         let tokens_minted = storage.tokens_minted;
         let total_mint = tokens_minted + amount;
         // The current number of tokens minted plus the amount to be minted cannot be
@@ -167,7 +167,7 @@ impl NFT for Contract {
         let mut index = tokens_minted;
         while index < total_mint {
             // Create the TokenMetaData for this new token
-            storage.meta_data.insert(index, ~TokenMetaData::new());
+            storage.meta_data.insert(index, ~TokenMetaData::new(name, metadata_uri, creators));
             storage.owners.insert(index, Option::Some(to));
             index += 1;
         }
