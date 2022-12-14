@@ -15,4 +15,5 @@ pub enum AccessError {
     SenderNotOwner: (),
     SenderNotOwnerOrApproved: (),
     SenderDidNotMakeOffer: (),
+    BuyerSameAsSeller: (),
 }

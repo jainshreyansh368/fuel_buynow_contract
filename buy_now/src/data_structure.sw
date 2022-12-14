@@ -3,7 +3,7 @@ library data_structure;
 pub struct ListNft {
     owner: Identity,
     price: u64,
-}
+} 
 
 pub struct OfferNft {
     offerer: Option<Identity>,
