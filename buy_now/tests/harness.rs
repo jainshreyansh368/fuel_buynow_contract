@@ -2,8 +2,8 @@ use fuels::{prelude::*, tx::ContractId};
 use std::str::FromStr;
 
 // Load abi from json
-abigen!(MyContract, "out/debug/buy_now-abi.json");
-abigen!(MyNFTContract, "../NFT/NFT/out/debug/NFT-abi.json");
+abigen!(MyContract, "./out/debug/buy_now-abi.json");
+abigen!(MyNFTContract, "./../NFT/NFT/out/debug/NFT-abi.json");
 
 async fn get_contract_instances_and_wallet() -> (
     MyContract,
@@ -48,7 +48,7 @@ async fn get_contract_instances_and_wallet() -> (
 
     let buy_now_instance = MyContract::new(buy_now_contract_id.to_string(), wallet.clone());
     let nft_instance = MyNFTContract::new(nft_contract_id.to_string(), wallet.clone());
-    
+
     (
         buy_now_instance,
         buy_now_contract_id.into(),
@@ -98,3 +98,69 @@ async fn set_admin_test() {
 
     assert_eq!(test_admin, admin_call_response.value);
 }
+
+#[tokio::test]
+async fn list_nft_test() {
+    let (buy_now_instance, buy_now_id, nft_instance, nft_id, wallet) =
+        get_contract_instances_and_wallet().await;
+    // Now you have an instance of your contract you can use to test each function
+    let wallet_addr_ident = Identity::Address(wallet.address().into());
+
+    nft_instance.methods().constructor(true, 
+        Identity::Address(
+            Address::from_str("0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db")
+                .expect("failed to create Address from string"),
+        ),
+        100
+    ).call().await.unwrap();
+
+    let supply_total = nft_instance.methods().total_supply().call().await.unwrap();
+
+    nft_instance.methods().mint(
+        1,
+        Identity::Address(
+            Address::from_str("0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db")
+                .expect("failed to create Address from string"),
+        ),
+        SizedAsciiString::<35>::new("exampleooiiuuyyttrreegghhddkkllssmm".to_string()).unwrap(), 
+        SizedAsciiString::<59>::new("bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi".to_string()).unwrap(),
+        [   Identity::Address(
+                Address::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
+                    .expect("failed to create Address from string"),
+            ),        
+            Identity::Address(
+                Address::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
+                    .expect("failed to create Address from string"),
+            ),        
+            Identity::Address(
+                Address::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
+                    .expect("failed to create Address from string"),
+            ),        
+            Identity::Address(
+                Address::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
+                    .expect("failed to create Address from string"),
+            ),        
+            Identity::Address(
+                Address::from_str("0x0000000000000000000000000000000000000000000000000000000000000000")
+                    .expect("failed to create Address from string"),
+            )
+        ],
+    ).call().await.unwrap();
+    println!("nft contract id ::  {:?}", nft_id);
+    println!("buynow contract id ::  {:?}", buy_now_id);
+
+    nft_instance.methods().approve(Identity::ContractId(buy_now_id), 0).call().await.unwrap();
+    // ).call().await.unwrap();
+
+    buy_now_instance.methods().list_nft(
+            nft_id.clone(),
+            0,
+            10,
+    ).set_contracts(&[nft_id.into()])
+    .call().await.unwrap();
+
+    let nft_owner = nft_instance.methods().owner_of(supply_total.value).call().await.unwrap();
+
+    assert_eq!(Identity::ContractId(buy_now_id), nft_owner.value);
+}
+
