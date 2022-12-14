@@ -35,7 +35,7 @@ use std::{
 storage {
     // Stores the user that is permitted to be handle the admin Operations of the contract.
     // Only the `admin` is allowed to change the `admin` of the contract.
-    admin: Option<Identity> = Option::Some(Identity::Address(~Address::from(0x6b63804cfbf9856e68e5b6e7aef238dc8311ec55bec04df774003a2c96e0418e))),
+    admin: Option<Identity> = Option::Some(Identity::Address(~Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db))),
     // // Total Number of NFTS Listed on Platform
     // no_of_nft_listed: u64 = 0,
     // //No of NFts listed on platform by a single user
