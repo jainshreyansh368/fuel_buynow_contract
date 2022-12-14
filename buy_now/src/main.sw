@@ -26,7 +26,7 @@ use external_interface::externalAbi;
 
 use std::{
     chain::auth::msg_sender,
-    context::call_frames::contract_id,
+    context::{call_frames::contract_id, msg_amount},
     logging::log,
     storage::StorageMap,
     token::transfer,
@@ -135,16 +135,16 @@ impl NftMarketplace for Contract {
         require(price != 0, InputError::PriceCantBeZero);
         require(storage.nft_listed.get((Option::Some(id), token_id)), AccessError::NFTNotListed);
 
-        // offer amount
-        transfer(price, ~ContractId::from(FUEL), msg_sender().unwrap());
-        
-        let nft_contract: b256 = id.into();
+        let data = storage.offer_nft.get((Option::Some(id), token_id));
+
+        require(msg_amount() > data.price, InputError::LessPriceThanPreviousOffer);
 
         // transfer previous user amount back to user's account
-        let data = storage.offer_nft.get((Option::Some(id), token_id));
         if data.offerer.is_some() {
             transfer(data.price, ~ContractId::from(FUEL), data.offerer.unwrap());
         }
+        
+        let nft_contract: b256 = id.into();
 
         let nft = OfferNft{
             offerer: Option::Some(msg_sender().unwrap()),

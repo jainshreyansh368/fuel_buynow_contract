@@ -3,7 +3,8 @@ library errors;
 pub enum InputError {
     AdminDoesNotExist: (),
     PriceCantBeZero: (),
-    OffererNotExists: (), 
+    OffererNotExists: (),
+    LessPriceThanPreviousOffer: (), 
 }
 
 pub enum AccessError {
