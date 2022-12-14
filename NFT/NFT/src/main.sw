@@ -24,7 +24,7 @@ storage {
     /// Stores the user that is permitted to mint if `access_control` is set to true.
     /// Will store `None` if this contract does not have `access_control` set.
     /// Only the `admin` is allowed to change the `admin` of the contract.
-    admin: Option<Identity> = Option::None,
+    admin: Option<Identity> = Option::Some(Identity::Address(~Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db))),
     /// Stores the user which is approved to transfer a token based on it's unique identifier.
     /// In the case that no user is approved to transfer a token based on the token owner's behalf,
     /// `None` will be stored.
@@ -152,7 +152,7 @@ impl NFT for Contract {
     }
 
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity) {
+    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[59], creators: [Identity; 5]) {
         let tokens_minted = storage.tokens_minted;
         let total_mint = tokens_minted + amount;
         // The current number of tokens minted plus the amount to be minted cannot be
@@ -167,7 +167,7 @@ impl NFT for Contract {
         let mut index = tokens_minted;
         while index < total_mint {
             // Create the TokenMetaData for this new token
-            storage.meta_data.insert(index, ~TokenMetaData::new());
+            storage.meta_data.insert(index, ~TokenMetaData::new(name, metadata_uri, creators));
             storage.owners.insert(index, Option::Some(to));
             index += 1;
         }

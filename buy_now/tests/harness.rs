@@ -48,7 +48,7 @@ async fn get_contract_instances_and_wallet() -> (
 
     let buy_now_instance = MyContract::new(buy_now_contract_id.to_string(), wallet.clone());
     let nft_instance = MyNFTContract::new(nft_contract_id.to_string(), wallet.clone());
-
+    
     (
         buy_now_instance,
         buy_now_contract_id.into(),
@@ -97,5 +97,4 @@ async fn set_admin_test() {
     let admin_call_response = buy_now_instance.methods().admin().call().await.unwrap();
 
     assert_eq!(test_admin, admin_call_response.value);
-    
 }

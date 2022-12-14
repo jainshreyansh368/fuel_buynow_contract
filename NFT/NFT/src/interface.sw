@@ -147,7 +147,7 @@ abi NFT {
     /// * When the sender attempts to mint more tokens than total supply.
     /// * When the sender is not the admin and `access_control` is set.
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity);
+    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[59], creators: [Identity; 5]);
 
     /// Returns the metadata for the token specified
     ///
