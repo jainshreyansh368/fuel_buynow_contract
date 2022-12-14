@@ -97,4 +97,5 @@ async fn set_admin_test() {
     let admin_call_response = buy_now_instance.methods().admin().call().await.unwrap();
 
     assert_eq!(test_admin, admin_call_response.value);
+    
 }
