@@ -41,6 +41,7 @@ storage {
     // //No of NFts listed on platform by a single user
     // // Map(user(Identity) => no_of_nft_listed)
     // no_of_nft_listed_by_user: StorageMap<Option<Identity>, u64> = StorageMap{},
+    platform_fee_account: Identity = Identity::Address(~Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db)),
     protocol_fee: u64 = 0,
     nft_listed: StorageMap<(Option<ContractId>, u64), bool> = StorageMap {},
     list_nft: StorageMap<(Option<ContractId>, u64), ListNft> = StorageMap {},
@@ -111,7 +112,8 @@ impl NftMarketplace for Contract {
         // todo ContractNotInInputs error
         let x = abi(externalAbi, nft_contract);
 
-        // x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
+        x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
+        
         storage.nft_listed.insert((Option::Some(id), token_id), false);
 
 
@@ -172,17 +174,21 @@ impl NftMarketplace for Contract {
         let protocol_amount = (nft_data.price * storage.protocol_fee) / 100;
         let user_amount = nft_data.price - protocol_amount;
 
+        let nft_listed_data = storage.list_nft.get((Option::Some(id), token_id));
+        let seller = nft_listed_data.owner;
+        // require(seller != msg_sender().unwrap(), AccessError::BuyerSameAsSeller);
+        require(msg_amount() == nft_listed_data.price, InputError::LessPriceThanPreviousOffer);
+
         // protocol fee
-        transfer(protocol_amount, ~ContractId::from(FUEL), this_contract);
+        transfer(protocol_amount, ~ContractId::from(FUEL), storage.platform_fee_account);
 
         // user amount
-        transfer(user_amount, ~ContractId::from(FUEL), msg_sender().unwrap());
+        transfer(user_amount , ~ContractId::from(FUEL), seller);
 
         // todo ContractNotInInputs error
         let x = abi(externalAbi, nft_contract);
         x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
         storage.nft_listed.insert((Option::Some(id), token_id), false);
-
 
         // TODO: if we have `nft_listed` field in the contract we don't need to update/write in the contract
         // let nft = ListNft{
