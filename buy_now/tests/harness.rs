@@ -413,3 +413,103 @@ async fn make_offer_test() {
         .call_params(CallParameters::new(Some(10), None, None))
         .call().await.unwrap();
 }
+
+#[tokio::test]
+async fn accept_offer_test() {
+    let (buy_now_instance, buy_now_id, nft_instance, nft_id, wallet) =
+    get_contract_instances_and_wallet().await;
+
+nft_instance
+    .methods()
+    .constructor(
+        true,
+        Identity::Address(
+            Address::from_str(
+                "0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db",
+            )
+            .expect("failed to create Address from string"),
+        ),
+        100,
+    )
+    .call()
+    .await
+    .unwrap();
+
+nft_instance
+    .methods()
+    .mint(
+        1,
+        Identity::Address(
+            Address::from_str(
+                "0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db",
+            )
+            .expect("failed to create Address from string"),
+        ),
+        SizedAsciiString::<35>::new("exampleooiiuuyyttrreegghhddkkllssmm".to_string()).unwrap(),
+        SizedAsciiString::<59>::new(
+            "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi".to_string(),
+        )
+        .unwrap(),
+        [
+            Identity::Address(
+                Address::from_str(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+                .expect("failed to create Address from string"),
+            ),
+            Identity::Address(
+                Address::from_str(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+                .expect("failed to create Address from string"),
+            ),
+            Identity::Address(
+                Address::from_str(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+                .expect("failed to create Address from string"),
+            ),
+            Identity::Address(
+                Address::from_str(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+                .expect("failed to create Address from string"),
+            ),
+            Identity::Address(
+                Address::from_str(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000",
+                )
+                .expect("failed to create Address from string"),
+            ),
+        ],
+    )
+    .call()
+    .await
+    .unwrap();
+
+    nft_instance.methods().approve(Identity::ContractId(buy_now_id), 0).call().await.unwrap();
+    // ).call().await.unwrap();
+
+    buy_now_instance.methods().list_nft(
+            nft_id.clone(),
+            0,
+            10,
+    ).set_contracts(&[nft_id.into()])
+    .call().await.unwrap();
+
+    buy_now_instance.methods().make_offer(
+        nft_id.clone(),
+        0,
+        10,
+    ).set_contracts(&[nft_id.into()])
+    .call_params(CallParameters::new(Some(10), None, None))
+    .call().await.unwrap();
+
+    buy_now_instance.methods().accept_offer(
+        nft_id.clone(),
+        0,
+        10,
+    ).set_contracts(&[nft_id.into()])
+    .call_params(CallParameters::new(Some(10), None, None))
+    .call().await.unwrap();
+}

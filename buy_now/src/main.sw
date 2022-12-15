@@ -30,6 +30,7 @@ use std::{
     logging::log,
     storage::StorageMap,
     token::transfer,
+    constants::BASE_ASSET_ID,
 };
 
 storage {
@@ -228,10 +229,10 @@ impl NftMarketplace for Contract {
 
 
         // protocol fee
-        transfer(protocol_amount, ~ContractId::from(FUEL), this_contract);
+        // transfer(protocol_amount, BASE_ASSET_ID, this_contract);
 
         // user amount
-        transfer(user_amount, ~ContractId::from(FUEL), msg_sender().unwrap());
+        // transfer(user_amount, BASE_ASSET_ID, msg_sender().unwrap());
 
         let x = abi(externalAbi, nft_contract);
         x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
