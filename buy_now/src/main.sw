@@ -267,4 +267,10 @@ impl NftMarketplace for Contract {
             new_price: new_price,
         });
     }
+
+    #[storage(read)]
+    fn nft_price(id: ContractId, token_id: u64) -> u64 {
+        let nft_data = storage.list_nft.get((Option::Some(id), token_id));
+        nft_data.price
+    }
 }
