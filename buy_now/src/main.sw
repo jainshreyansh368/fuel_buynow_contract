@@ -180,10 +180,10 @@ impl NftMarketplace for Contract {
         require(msg_amount() == nft_listed_data.price, InputError::LessPriceThanPreviousOffer);
 
         // protocol fee
-        transfer(protocol_amount, ~ContractId::from(FUEL), storage.platform_fee_account);
+        // transfer(protocol_amount, ~ContractId::from(FUEL), storage.platform_fee_account);
 
         // user amount
-        transfer(user_amount , ~ContractId::from(FUEL), seller);
+        // transfer(user_amount , ~ContractId::from(FUEL), seller);
 
         // todo ContractNotInInputs error
         let x = abi(externalAbi, nft_contract);
