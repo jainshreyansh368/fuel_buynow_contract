@@ -512,6 +512,7 @@ nft_instance
     ).set_contracts(&[nft_id.into()])
     .call_params(CallParameters::new(Some(10), None, None))
     .call().await.unwrap();
+
 }
 
 
@@ -593,3 +594,5 @@ async fn change_nft_price_test() {
     assert_eq!(13, new_price.value);
 }
 
+
+}
