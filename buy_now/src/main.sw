@@ -30,6 +30,7 @@ use std::{
     logging::log,
     storage::StorageMap,
     token::transfer,
+    constants::BASE_ASSET_ID,
 };
 
 storage {
@@ -180,10 +181,10 @@ impl NftMarketplace for Contract {
         require(msg_amount() == nft_listed_data.price, InputError::LessPriceThanPreviousOffer);
 
         // protocol fee
-        transfer(protocol_amount, ~ContractId::from(FUEL), storage.platform_fee_account);
+        // transfer(protocol_amount, ~ContractId::from(FUEL), storage.platform_fee_account);
 
         // user amount
-        transfer(user_amount , ~ContractId::from(FUEL), seller);
+        // transfer(user_amount , ~ContractId::from(FUEL), seller);
 
         // todo ContractNotInInputs error
         let x = abi(externalAbi, nft_contract);
@@ -228,10 +229,10 @@ impl NftMarketplace for Contract {
 
 
         // protocol fee
-        transfer(protocol_amount, ~ContractId::from(FUEL), this_contract);
+        // transfer(protocol_amount, BASE_ASSET_ID, this_contract);
 
         // user amount
-        transfer(user_amount, ~ContractId::from(FUEL), msg_sender().unwrap());
+        // transfer(user_amount, BASE_ASSET_ID, msg_sender().unwrap());
 
         let x = abi(externalAbi, nft_contract);
         x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
@@ -265,5 +266,11 @@ impl NftMarketplace for Contract {
             old_price: nft_data.price,
             new_price: new_price,
         });
+    }
+
+    #[storage(read)]
+    fn nft_price(id: ContractId, token_id: u64) -> u64 {
+        let nft_data = storage.list_nft.get((Option::Some(id), token_id));
+        nft_data.price
     }
 }

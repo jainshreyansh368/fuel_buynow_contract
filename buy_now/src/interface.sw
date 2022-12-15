@@ -52,4 +52,7 @@ abi NftMarketplace {
 
     #[storage(read, write)]
     fn change_nft_price(id: ContractId, token_id: u64, new_price: u64);
+
+    #[storage(read)]
+    fn nft_price(id: ContractId, token_id: u64) -> u64;
 }
