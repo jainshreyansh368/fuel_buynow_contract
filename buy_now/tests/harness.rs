@@ -593,6 +593,3 @@ async fn change_nft_price_test() {
 
     assert_eq!(13, new_price.value);
 }
-
-
-}
