@@ -8,7 +8,7 @@ use data_structures::TokenMetaData;
 use errors::{AccessError, InitError, InputError};
 use interface::{AdminEvent, ApprovalEvent, BurnEvent, MintEvent, NFT, OperatorEvent, TransferEvent};
 use std::{
-    chain::auth::msg_sender,
+    auth::msg_sender,
     identity::Identity,
     logging::log,
     option::Option,
@@ -24,7 +24,7 @@ storage {
     /// Stores the user that is permitted to mint if `access_control` is set to true.
     /// Will store `None` if this contract does not have `access_control` set.
     /// Only the `admin` is allowed to change the `admin` of the contract.
-    admin: Option<Identity> = Option::Some(Identity::Address(~Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db))),
+    admin: Option<Identity> = Option::Some(Identity::Address(Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db))),
     /// Stores the user which is approved to transfer a token based on it's unique identifier.
     /// In the case that no user is approved to transfer a token based on the token owner's behalf,
     /// `None` will be stored.
@@ -115,7 +115,7 @@ impl NFT for Contract {
         let sender = msg_sender().unwrap();
         require(token_owner.unwrap() == sender, AccessError::SenderNotOwner);
 
-        storage.owners.insert(token_id, Option::None());
+        storage.owners.insert(token_id, Option::None::<Identity>());
         storage.balances.insert(sender, storage.balances.get(sender) - 1);
         storage.total_supply -= 1;
 
@@ -167,7 +167,7 @@ impl NFT for Contract {
         let mut index = tokens_minted;
         while index < total_mint {
             // Create the TokenMetaData for this new token
-            storage.meta_data.insert(index, ~TokenMetaData::new(name, metadata_uri, creators));
+            storage.meta_data.insert(index, TokenMetaData::new(name, metadata_uri, creators));
             storage.owners.insert(index, Option::Some(to));
             index += 1;
         }
@@ -248,7 +248,7 @@ impl NFT for Contract {
         // Set the new owner of the token and reset the approved Identity
         storage.owners.insert(token_id, Option::Some(to));
         if approved.is_some() {
-            storage.approved.insert(token_id, Option::None());
+            storage.approved.insert(token_id, Option::None::<Identity>());
         }
 
         storage.balances.insert(from, storage.balances.get(from) - 1);
@@ -281,7 +281,7 @@ impl NFT for Contract {
             // Set the new owner of the token and reset the approved Identity
             storage.owners.insert(token_ids.get(index).unwrap(), Option::Some(to));
             if approved.is_some() {
-                storage.approved.insert(token_ids.get(index).unwrap(), Option::None());
+                storage.approved.insert(token_ids.get(index).unwrap(), Option::None::<Identity>());
             }
         }
 
