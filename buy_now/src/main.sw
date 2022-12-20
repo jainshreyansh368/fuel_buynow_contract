@@ -25,8 +25,9 @@ use interface::NftMarketplace;
 use external_interface::externalAbi;
 
 use std::{
-    chain::auth::msg_sender,
-    context::{call_frames::contract_id, msg_amount},
+    auth::msg_sender,
+    call_frames::contract_id,
+    context::msg_amount,
     logging::log,
     storage::StorageMap,
     token::transfer,
@@ -36,13 +37,13 @@ use std::{
 storage {
     // Stores the user that is permitted to be handle the admin Operations of the contract.
     // Only the `admin` is allowed to change the `admin` of the contract.
-    admin: Option<Identity> = Option::Some(Identity::Address(~Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db))),
+    admin: Option<Identity> = Option::Some(Identity::Address(Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db))),
     // // Total Number of NFTS Listed on Platform
     // no_of_nft_listed: u64 = 0,
     // //No of NFts listed on platform by a single user
     // // Map(user(Identity) => no_of_nft_listed)
     // no_of_nft_listed_by_user: StorageMap<Option<Identity>, u64> = StorageMap{},
-    platform_fee_account: Identity = Identity::Address(~Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db)),
+    platform_fee_account: Identity = Identity::Address(Address::from(0x09c0b2d1a486c439a87bcba6b46a7a1a23f3897cc83a94521a96da5c23bc58db)),
     protocol_fee: u64 = 0,
     nft_listed: StorageMap<(Option<ContractId>, u64), bool> = StorageMap {},
     list_nft: StorageMap<(Option<ContractId>, u64), ListNft> = StorageMap {},
@@ -144,7 +145,7 @@ impl NftMarketplace for Contract {
 
         // transfer previous user amount back to user's account
         if data.offerer.is_some() {
-            transfer(data.price, ~ContractId::from(FUEL), data.offerer.unwrap());
+            transfer(data.price, ContractId::from(FUEL), data.offerer.unwrap());
         }
         
         let nft_contract: b256 = id.into();

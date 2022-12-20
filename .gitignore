@@ -10,3 +10,5 @@ auction-contract/Cargo.lock
 auction-contract/Forc.lock
 auction-contract/out
 auction-contract/target
+**/Forc.lock
+**/Cargo.lock
