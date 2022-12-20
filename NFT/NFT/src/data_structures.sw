@@ -10,7 +10,7 @@ pub struct TokenMetaData {
 }
 
 impl TokenMetaData {
-    fn new(name: str[35], metadata_uri: str[59], creators: [Identity; 5]) -> Self {
+    pub fn new(name: str[35], metadata_uri: str[59], creators: [Identity; 5]) -> Self {
         Self {
             name,
             metadata_uri,
