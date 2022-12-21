@@ -135,6 +135,31 @@ impl NftMarketplace for Contract {
         
         storage.nft_listed.insert((Option::Some(id), token_id), false);
 
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut index = 0;
+
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+
+            while index < owner_nft_vec.len() {
+                if id == owner_nft_vec.get(index).unwrap().0 {
+                    if token_id == owner_nft_vec.get(index).unwrap().1 {
+                        owner_nft_vec.remove(index);
+                        break;
+                    }
+                }
+
+                index = index + 1;
+            }
+
+            if owner_nft_vec.len() > 0 {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+            } else {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
+            }
+        }
+        // might need to remove after fuel indexer
 
         // TODO: if we have `nft_listed` field in the contract we don't need to update/write in the contract
         // let nft = ListNft{
@@ -209,6 +234,32 @@ impl NftMarketplace for Contract {
         x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
         storage.nft_listed.insert((Option::Some(id), token_id), false);
 
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut index = 0;
+
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+
+            while index < owner_nft_vec.len() {
+                if id == owner_nft_vec.get(index).unwrap().0 {
+                    if token_id == owner_nft_vec.get(index).unwrap().1 {
+                        owner_nft_vec.remove(index);
+                        break;
+                    }
+                }
+
+                index = index + 1;
+            }
+
+            if owner_nft_vec.len() > 0 {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+            } else {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
+            }
+        }
+        // might need to remove after fuel indexer
+
         // TODO: if we have `nft_listed` field in the contract we don't need to update/write in the contract
         // let nft = ListNft{
         //     owner: Option::None(),
@@ -255,6 +306,32 @@ impl NftMarketplace for Contract {
         let x = abi(externalAbi, nft_contract);
         x.transfer_from(this_contract, msg_sender().unwrap(), token_id);
         storage.nft_listed.insert((Option::Some(id), token_id), false);
+
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut index = 0;
+
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+
+            while index < owner_nft_vec.len() {
+                if id == owner_nft_vec.get(index).unwrap().0 {
+                    if token_id == owner_nft_vec.get(index).unwrap().1 {
+                        owner_nft_vec.remove(index);
+                        break;
+                    }
+                }
+
+                index = index + 1;
+            }
+
+            if owner_nft_vec.len() > 0 {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+            } else {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
+            }
+        }
+        // might need to remove after fuel indexer
 
         log(NFTOfferAcceptEvent {
             offerer: msg_sender().unwrap(),
