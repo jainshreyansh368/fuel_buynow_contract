@@ -47,7 +47,9 @@ storage {
     protocol_fee: u64 = 0,
     nft_listed: StorageMap<(Option<ContractId>, u64), bool> = StorageMap {},
     list_nft: StorageMap<(Option<ContractId>, u64), ListNft> = StorageMap {},
-
+    // might need to remove after fuel indexer
+    owner_nft_map: StorageMap<Identity, Option<Vec<(ContractId, u64)>>> = StorageMap {},
+    // might need to remove after fuel indexer 
     offer_nft: StorageMap<(Option<ContractId>, u64), OfferNft> = StorageMap {},
 
 }
