@@ -368,4 +368,30 @@ impl NftMarketplace for Contract {
         let nft_data = storage.list_nft.get((Option::Some(id), token_id));
         nft_data.price
     }
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn get_users_listed_nft(user: Identity) -> [(ContractId, u64); 20] {
+        let mut index = 0; 
+        let dum_data = (ContractId::from(0x0000000000000000000000000000000000000000000000000000000000000000), 0);
+        let mut ret_arr = [dum_data; 20];
+
+        let users_list_vec = storage.owner_nft_map.get(user).unwrap();
+
+        while index < users_list_vec.len() {
+            let stored_contract_id = users_list_vec.get(index).unwrap().0;
+            let token_id = users_list_vec.get(index).unwrap().1;
+
+            if storage.nft_listed.get((Option::Some(stored_contract_id), token_id)) {
+                let owner = storage.list_nft.get((Option::Some(stored_contract_id), token_id));
+                if owner.owner == user {
+                    ret_arr[index] = (stored_contract_id, token_id);
+                }
+            }
+        }
+
+        ret_arr
+    }
+    // might need to remove after fuel indexer
 }
