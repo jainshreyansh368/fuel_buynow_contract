@@ -48,6 +48,7 @@ storage {
     nft_listed: StorageMap<(Option<ContractId>, u64), bool> = StorageMap {},
     list_nft: StorageMap<(Option<ContractId>, u64), ListNft> = StorageMap {},
     // might need to remove after fuel indexer
+    // get users listed nft (Contract)
     owner_nft_map: StorageMap<Identity, Option<Vec<(ContractId, u64)>>> = StorageMap {},
     // might need to remove after fuel indexer 
     offer_nft: StorageMap<(Option<ContractId>, u64), OfferNft> = StorageMap {},
@@ -89,6 +90,20 @@ impl NftMarketplace for Contract {
         require(owner == msg_sender().unwrap(), AccessError::SenderNotOwner);
         x.transfer_from(msg_sender().unwrap(), this_contract, token_id);
         storage.nft_listed.insert((Option::Some(id), token_id), true);
+
+
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+            owner_nft_vec.push((id, token_id));
+            storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+        } else {
+            let mut owner_nft_vec = Vec::<(ContractId, u64)>::new();
+            owner_nft_vec.push((id, token_id));
+            storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+        }
+        // might need to remove after fuel indexer
 
         let nft = ListNft {
             owner: msg_sender().unwrap(),
