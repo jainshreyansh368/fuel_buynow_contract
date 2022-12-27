@@ -115,6 +115,12 @@ abi EnglishAuction {
     /// Returns the total auctions which have been started using this auction contract.
     #[storage(read)]
     fn total_auctions() -> u64;
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn fetch_users_auction_nfts(user: Identity) -> [(ContractId, u64); 20];
+    // might need to remove after fuel indexer
 }
 
 abi NFT {
