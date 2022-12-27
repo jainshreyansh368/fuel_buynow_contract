@@ -45,6 +45,10 @@ storage {
     deposits: StorageMap<(Identity, u64), Option<AuctionAsset>> = StorageMap {},
     /// The total number of auctions that have ever been created.
     total_auctions: u64 = 0,
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    owner_nft_map: StorageMap<Identity, Option<Vec<(ContractId, u64)>>> = StorageMap {},
+    // might need to remove after fuel indexer 
 }
 
 impl EnglishAuction for Contract {
@@ -118,6 +122,8 @@ impl EnglishAuction for Contract {
 
     #[storage(read, write)]
     fn cancel(auction_id: u64) {
+        let mut id = ContractId::from(0x0000000000000000000000000000000000000000000000000000000000000000);
+        let mut token_id = 0;
         // Make sure this auction exists
         let auction = storage.auctions.get(auction_id);
         require(auction.is_some(), InputError::AuctionDoesNotExist);
@@ -131,6 +137,42 @@ impl EnglishAuction for Contract {
         auction.state = State::Closed;
         storage.auctions.insert(auction_id, Option::Some(auction));
 
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        match auction.sell_asset {
+            AuctionAsset::TokenAsset(asset) => {
+
+            },
+            AuctionAsset::NFTAsset(asset) => {
+                id = asset.asset_id;
+                token_id = asset.token_id;
+            }
+        }
+
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut index = 0;
+
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+
+            while index < owner_nft_vec.len() {
+                if id == owner_nft_vec.get(index).unwrap().0 {
+                    if token_id == owner_nft_vec.get(index).unwrap().1 {
+                        owner_nft_vec.remove(index);
+                        break;
+                    }
+                }
+
+                index = index + 1;
+            }
+
+            if owner_nft_vec.len() > 0 {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+            } else {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
+            }
+        }
+        // might need to remove after fuel indexer
+
         log(CancelAuctionEvent { auction_id });
     }
 
@@ -143,6 +185,8 @@ impl EnglishAuction for Contract {
         seller: Identity,
         sell_asset: AuctionAsset,
     ) -> u64 {
+        let mut id = ContractId::from(0x0000000000000000000000000000000000000000000000000000000000000000);
+        let mut token_id = 0;
         // Either there is no reserve price or the reserve must be greater than the initial price
         require(reserve_price.is_none() || (reserve_price.is_some() && reserve_price.unwrap() >= initial_price), InitError::ReserveLessThanInitialPrice);
         require(duration != 0, InitError::AuctionDurationNotProvided);
@@ -167,6 +211,8 @@ impl EnglishAuction for Contract {
                 require(msg_asset_id() == asset.asset_id(), InputError::IncorrectAssetProvided);
             },
             AuctionAsset::NFTAsset(asset) => {
+                id = asset.asset_id;
+                token_id = asset.token_id;
                 // Selling NFTs
                 let sender = msg_sender().unwrap();
                 // TODO: Remove this when StorageVec in structs is supported
@@ -182,6 +228,19 @@ impl EnglishAuction for Contract {
         let total_auctions = storage.total_auctions;
         storage.deposits.insert((seller, total_auctions), Option::Some(sell_asset));
         storage.auctions.insert(total_auctions, Option::Some(auction));
+
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+            owner_nft_vec.push((id, token_id));
+            storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+        } else {
+            let mut owner_nft_vec = Vec::<(ContractId, u64)>::new();
+            owner_nft_vec.push((id, token_id));
+            storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+        }
+        // might need to remove after fuel indexer
 
         log(CreateAuctionEvent {
             auction_id: total_auctions,
@@ -200,6 +259,8 @@ impl EnglishAuction for Contract {
 
     #[storage(read, write)]
     fn withdraw(auction_id: u64) {
+        let mut id = ContractId::from(0x0000000000000000000000000000000000000000000000000000000000000000);
+        let mut token_id = 0;
         // Make sure this auction exists
         let auction = storage.auctions.get(auction_id);
         require(auction.is_some(), InputError::AuctionDoesNotExist);
@@ -222,6 +283,42 @@ impl EnglishAuction for Contract {
         require(sender_deposit.is_some(), UserError::UserHasAlreadyWithdrawn);
         storage.deposits.insert((sender, auction_id), Option::None::<AuctionAsset>());
         let mut withdrawn_asset = sender_deposit.unwrap();
+
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        match auction.sell_asset {
+            AuctionAsset::TokenAsset(asset) => {
+
+            },
+            AuctionAsset::NFTAsset(asset) => {
+                id = asset.asset_id;
+                token_id = asset.token_id;
+            }
+        }
+
+        if storage.owner_nft_map.get(msg_sender().unwrap()).is_some() {
+            let mut index = 0;
+
+            let mut owner_nft_vec = storage.owner_nft_map.get(msg_sender().unwrap()).unwrap();
+
+            while index < owner_nft_vec.len() {
+                if id == owner_nft_vec.get(index).unwrap().0 {
+                    if token_id == owner_nft_vec.get(index).unwrap().1 {
+                        owner_nft_vec.remove(index);
+                        break;
+                    }
+                }
+
+                index = index + 1;
+            }
+
+            if owner_nft_vec.len() > 0 {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::Some(owner_nft_vec));
+            } else {
+                storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
+            }
+        }
+        // might need to remove after fuel indexer
 
         // Withdraw owed assets
         if ((bidder.is_some()
@@ -249,4 +346,27 @@ impl EnglishAuction for Contract {
     fn total_auctions() -> u64 {
         storage.total_auctions
     }
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn fetch_users_auction_nfts(user: Identity) -> [(ContractId, u64); 20] {
+        let mut index = 0; 
+        let dum_data = (ContractId::from(0x0000000000000000000000000000000000000000000000000000000000000000), 0);
+        let mut ret_arr = [dum_data; 20];
+
+        let users_list_vec = storage.owner_nft_map.get(user).unwrap();
+
+        while index < users_list_vec.len() && index < 20 {
+            let stored_contract_id = users_list_vec.get(index).unwrap().0;
+            let token_id = users_list_vec.get(index).unwrap().1;
+
+            ret_arr[index] = (stored_contract_id, token_id);
+            
+            index = index + 1;
+        }
+
+        ret_arr
+    }
+    // might need to remove after fuel indexer
 }
