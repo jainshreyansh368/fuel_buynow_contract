@@ -379,7 +379,7 @@ impl NftMarketplace for Contract {
 
         let users_list_vec = storage.owner_nft_map.get(user).unwrap();
 
-        while index < users_list_vec.len() {
+        while index < users_list_vec.len() && index < 20 {
             let stored_contract_id = users_list_vec.get(index).unwrap().0;
             let token_id = users_list_vec.get(index).unwrap().1;
 
@@ -389,6 +389,8 @@ impl NftMarketplace for Contract {
                     ret_arr[index] = (stored_contract_id, token_id);
                 }
             }
+
+            index = index + 1;
         }
 
         ret_arr
