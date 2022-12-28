@@ -83,6 +83,7 @@ impl NFT for Contract {
         // Set and store the `approved` `Identity`
         storage.approved.insert(token_id, approved);
 
+
         log(ApprovalEvent {
             owner: sender,
             approved,
@@ -134,7 +135,7 @@ impl NFT for Contract {
         let admin = Option::Some(admin);
         require(storage.max_supply == 0, InitError::CannotReinitialize);
         require(max_supply != 0, InputError::TokenSupplyCannotBeZero);
-        require((access_control && admin.is_some()) || (!access_control && admin.is_none()), InitError::AdminIsNone);
+        require((access_control && admin.is_some()) || (!access_control), InitError::AdminIsNone);
 
         storage.access_control = access_control;
         storage.admin = admin;
@@ -152,7 +153,7 @@ impl NFT for Contract {
     }
 
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[59], creators: [Identity; 5]) {
+    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[46], creators: [Identity; 5]) {
         let tokens_minted = storage.tokens_minted;
         let total_mint = tokens_minted + amount;
         // The current number of tokens minted plus the amount to be minted cannot be
