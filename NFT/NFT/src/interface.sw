@@ -228,6 +228,12 @@ abi NFT {
 
     #[storage(read, write)]
     fn bundle_transfer_from(from: Identity, to: Identity, token_ids: Vec<u64>);
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn get_user_nfts(user: Identity, set: u64) -> ([u64; 20], u64);
+  
 }
 
 pub struct OperatorEvent {

@@ -55,6 +55,9 @@ storage {
     /// This is incremented on mint and decremented on burn. This should not be used to assign
     /// unqiue identifiers due to the decrementation of the value on burning of tokens.
     total_supply: u64 = 0,
+
+    ///user owned NFTs
+    user_nfts: StorageMap<Identity, Option<Vec<u64>>> = StorageMap {},
 }
 
 impl NFT for Contract {
@@ -171,6 +174,20 @@ impl NFT for Contract {
             storage.meta_data.insert(index, TokenMetaData::new(name, metadata_uri, creators));
             storage.owners.insert(index, Option::Some(to));
             index += 1;
+
+            // might need to remove after fuel indexer
+            // add nft to users nft map
+            // get users listed nft (Contract)
+            if storage.user_nfts.get(to).is_some() {
+                let mut owner_nft_vec = storage.user_nfts.get(to).unwrap();
+                owner_nft_vec.push(index);
+                storage.user_nfts.insert(to, Option::Some(owner_nft_vec));
+            } else {
+                let mut owner_nft_vec = Vec::<u64>::new();
+                owner_nft_vec.push(index);
+                storage.user_nfts.insert(to, Option::Some(owner_nft_vec));
+            }
+            // might need to remove after fuel indexer
         }
 
         storage.balances.insert(to, storage.balances.get(to) + amount);
@@ -252,6 +269,43 @@ impl NFT for Contract {
             storage.approved.insert(token_id, Option::None::<Identity>());
         }
 
+
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        if storage.user_nfts.get(from).is_some() {
+            let mut index = 0;
+
+            let mut sender_owned_nfts = storage.user_nfts.get(from).unwrap();
+
+            while index < sender_owned_nfts.len() {
+                if token_id == sender_owned_nfts.get(index).unwrap() {
+                    sender_owned_nfts.remove(index);
+                    break;
+                }
+
+                index = index + 1;
+            }
+
+            if sender_owned_nfts.len() > 0 {
+                storage.user_nfts.insert(from, Option::Some(sender_owned_nfts));
+            } else {
+                storage.user_nfts.insert(from, Option::None::<Vec<u64>>());
+            }
+        }
+
+        // add nft to new users nft map
+        if storage.user_nfts.get(to).is_some() {
+            let mut recievers_nft_vec = storage.user_nfts.get(to).unwrap();
+            recievers_nft_vec.push(token_id);
+            storage.user_nfts.insert(to, Option::Some(recievers_nft_vec));
+        } else {
+            let mut recievers_nft_vec = Vec::<u64>::new();
+            recievers_nft_vec.push(token_id);
+            storage.user_nfts.insert(to, Option::Some(recievers_nft_vec));
+        }
+        // might need to remove after fuel indexer
+
+
         storage.balances.insert(from, storage.balances.get(from) - 1);
         storage.balances.insert(to, storage.balances.get(to) + 1);
 
@@ -262,7 +316,7 @@ impl NFT for Contract {
             token_id,
         });
     }
-
+ 
     #[storage(read, write)]
     fn bundle_transfer_from(from: Identity, to: Identity, token_ids: Vec<u64>) {
         let sender = msg_sender().unwrap();
@@ -296,4 +350,30 @@ impl NFT for Contract {
         //     token_id,
         // });
     }
+
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn get_user_nfts(user: Identity, set: u64) -> ([u64; 20], u64) {
+        let mut index = set*20; 
+
+        let dum_data = 0;
+        let mut ret_arr = [dum_data; 20];
+
+        let users_list_vec = storage.user_nfts.get(user).unwrap();
+
+        while index < users_list_vec.len() && index < set*20 + 20 {
+            
+            let token_id = users_list_vec.get(index).unwrap();
+            ret_arr[index] =  token_id;
+
+            index = index + 1;
+        }
+
+        (ret_arr, users_list_vec.len())
+    }
+    // might need to remove after fuel indexer
+
+
 }
