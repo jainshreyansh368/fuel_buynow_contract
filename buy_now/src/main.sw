@@ -33,6 +33,7 @@ use std::{
     token::transfer,
     constants::BASE_ASSET_ID,
 };
+use std::storage::StorageVec;
 
 storage {
     // Stores the user that is permitted to be handle the admin Operations of the contract.
@@ -52,7 +53,8 @@ storage {
     owner_nft_map: StorageMap<Identity, Option<Vec<(ContractId, u64)>>> = StorageMap {},
     // might need to remove after fuel indexer 
     offer_nft: StorageMap<(Option<ContractId>, u64), OfferNft> = StorageMap {},
-
+    // might need to remove after fuel indexer 
+    listed_nft: StorageVec<(ContractId, u64)> = StorageVec {},
 }
 
 impl NftMarketplace for Contract {
@@ -110,7 +112,8 @@ impl NftMarketplace for Contract {
             price: price,
         };
         storage.list_nft.insert((Option::Some(id), token_id), nft);
-
+        storage.listed_nft.push((id, token_id));
+        
         log(NFTListedEvent {
             owner: msg_sender().unwrap(),
             nft_contract: id,
@@ -158,6 +161,20 @@ impl NftMarketplace for Contract {
             } else {
                 storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
             }
+        }
+
+        //for all listed_nfts
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        let mut l_index = 0;
+
+        while l_index < storage.listed_nft.len() {
+            if id == storage.listed_nft.get(l_index).unwrap().0 && token_id == storage.listed_nft.get(l_index).unwrap().1{
+                storage.listed_nft.remove(l_index);
+                break;
+            }
+
+            l_index = l_index + 1;
         }
         // might need to remove after fuel indexer
 
@@ -225,7 +242,7 @@ impl NftMarketplace for Contract {
 
         // protocol fee
         // transfer(protocol_amount, ~ContractId::from(FUEL), storage.platform_fee_account);
-
+ 
         // user amount
         // transfer(user_amount , ~ContractId::from(FUEL), seller);
 
@@ -257,6 +274,21 @@ impl NftMarketplace for Contract {
             } else {
                 storage.owner_nft_map.insert(msg_sender().unwrap(), Option::None::<Vec<(ContractId, u64)>>());
             }
+        }
+        // might need to remove after fuel indexer
+
+        //for all listed_nfts
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        let mut l_index = 0;
+
+        while l_index < storage.listed_nft.len() {
+            if id == storage.listed_nft.get(l_index).unwrap().0 && token_id == storage.listed_nft.get(l_index).unwrap().1{
+                storage.listed_nft.remove(l_index);
+                break;
+            }
+
+            l_index = l_index + 1;
         }
         // might need to remove after fuel indexer
 
@@ -332,6 +364,21 @@ impl NftMarketplace for Contract {
             }
         }
         // might need to remove after fuel indexer
+      
+        //for all listed_nfts
+        // might need to remove after fuel indexer
+        // get users listed nft (Contract)
+        let mut l_index = 0;
+
+        while l_index < storage.listed_nft.len() {
+            if id == storage.listed_nft.get(l_index).unwrap().0 && token_id == storage.listed_nft.get(l_index).unwrap().1{
+                storage.listed_nft.remove(l_index);
+                break;
+            }
+
+            l_index = l_index + 1;
+        }
+        // might need to remove after fuel indexer
 
         log(NFTOfferAcceptEvent {
             offerer: msg_sender().unwrap(),
@@ -396,4 +443,28 @@ impl NftMarketplace for Contract {
         ret_arr
     }
     // might need to remove after fuel indexer
+
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn get_all_listed_nft(set: u64) -> [(ContractId, u64); 20] {
+        let mut index = set*20; 
+
+        let dum_data = (ContractId::from(0x0000000000000000000000000000000000000000000000000000000000000000), 0);
+        let mut ret_arr = [dum_data; 20];
+
+        while index < storage.listed_nft.len() && index < set*20 + 20 {
+            if storage.listed_nft.get(index).is_some() {
+                ret_arr[index] = storage.listed_nft.get(index).unwrap();
+
+            };
+        
+            index = index + 1;
+        }
+
+    ret_arr
+    
+    }
+
 }

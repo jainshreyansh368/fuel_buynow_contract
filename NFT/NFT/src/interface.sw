@@ -147,7 +147,7 @@ abi NFT {
     /// * When the sender attempts to mint more tokens than total supply.
     /// * When the sender is not the admin and `access_control` is set.
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[59], creators: [Identity; 5]);
+    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[46], creators: [Identity; 5]);
 
     /// Returns the metadata for the token specified
     ///
@@ -228,6 +228,12 @@ abi NFT {
 
     #[storage(read, write)]
     fn bundle_transfer_from(from: Identity, to: Identity, token_ids: Vec<u64>);
+
+    // might need to remove after fuel indexer
+    // get users listed nft (Contract)
+    #[storage(read)]
+    fn get_user_nfts(user: Identity, set: u64) -> ([u64; 20], u64);
+  
 }
 
 pub struct OperatorEvent {
