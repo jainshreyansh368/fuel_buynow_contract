@@ -2,9 +2,11 @@ library interface;
 
 dep data_structures/auction_asset;
 dep data_structures/auction;
+dep data_structures/user_bid_return_data;
 
 use auction_asset::AuctionAsset;
 use auction::Auction;
+use user_bid_return_data::UserBidReturnData;
 
 abi EnglishAuction {
     /// Returns the auction struct for the corresponding auction id.
@@ -120,6 +122,12 @@ abi EnglishAuction {
     // get users listed nft (Contract)
     #[storage(read)]
     fn fetch_users_auction_nfts(user: Identity) -> [(ContractId, u64); 20];
+    // might need to remove after fuel indexer
+
+    // might need to remove after fuel indexer
+    // get users bid (Contract)
+    #[storage(read)]
+    fn get_users_bid(user: Identity, auction_id: u64) -> Option<UserBidReturnData>;
     // might need to remove after fuel indexer
 }
 
