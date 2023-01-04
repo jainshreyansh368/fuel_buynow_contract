@@ -11,6 +11,7 @@ dep data_structures/auction_asset;
 dep data_structures/auction;
 dep data_structures/token_asset;
 dep data_structures/nft_asset;
+dep data_structures/user_bid_return_data;
 
 use auction_asset::AuctionAsset;
 use auction::Auction;
@@ -19,6 +20,7 @@ use events::{BidEvent, CancelAuctionEvent, CreateAuctionEvent, WithdrawEvent};
 use interface::{EnglishAuction, NFT};
 use nft_asset::NFTAsset;
 use state::State;
+use user_bid_return_data::UserBidReturnData;
 use std::{
     auth::msg_sender,
     block::height,
@@ -367,6 +369,37 @@ impl EnglishAuction for Contract {
         }
 
         ret_arr
+    }
+    // might need to remove after fuel indexer
+
+    // might need to remove after fuel indexer
+    // get users bid (Contract)
+    #[storage(read)]
+    fn get_users_bid(user: Identity, auction_id: u64) -> Option<UserBidReturnData> {
+        let auction = storage.auctions.get(auction_id);
+
+        require(auction.is_some(), InputError::AuctionDoesNotExist);
+
+        let auction_state = auction.unwrap();
+
+        require(auction_state.state == State::Open, AccessError::AuctionIsNotOpen);
+
+        let sell_asset = auction_state.sell_asset;
+
+        let bid = storage.deposits.get((user, auction_id));
+
+        if bid.is_none() {
+            return Option::None::<UserBidReturnData>();
+        }
+
+        let bid_state = bid.unwrap();
+
+        let return_data = UserBidReturnData {
+            bid_amount: bid_state.amount(),
+            auction_state
+        };
+
+        return Option::Some(return_data);
     }
     // might need to remove after fuel indexer
 }
