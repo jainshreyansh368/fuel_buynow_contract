@@ -68,5 +68,9 @@ abi NftMarketplace {
     fn get_all_listed_nft(set: u64) -> [(ContractId, u64); 20];
     // might need to remove after fuel indexer
 
+    // might need to remove after fuel indexer
+    // get listed NFT's precious owner (Contract)
+    #[storage(read)]
+    fn get_listed_nft_seller(id : ContractId, token_id: u64 ) -> Identity;
 
 }
