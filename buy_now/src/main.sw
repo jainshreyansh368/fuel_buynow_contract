@@ -467,4 +467,13 @@ impl NftMarketplace for Contract {
     
     }
 
+    // might need to remove after fuel indexer
+    // get listed NFT's precious owner (Contract)
+    #[storage(read)]
+    fn get_listed_nft_seller(id : ContractId, token_id: u64 ) -> Identity {
+        let nft_listed = storage.list_nft.get((Option::Some(id), token_id));
+
+        nft_listed.owner
+    }
+
 }
