@@ -233,6 +233,9 @@ abi NFT {
     // get users listed nft (Contract)
     #[storage(read)]
     fn get_user_nfts(user: Identity, set: u64) -> ([u64; 20], u64);
+
+    #[storage(read)]
+    fn get_tokens_minted_nfts() -> u64; 
   
 }
 
