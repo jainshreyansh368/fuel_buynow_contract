@@ -375,5 +375,8 @@ impl NFT for Contract {
     }
     // might need to remove after fuel indexer
 
-
+    #[storage(read)]
+    fn get_tokens_minted_nfts() -> u64 {
+        storage.tokens_minted
+    }
 }
