@@ -129,6 +129,11 @@ abi EnglishAuction {
     #[storage(read)]
     fn get_users_bid(user: Identity, auction_id: u64) -> Option<UserBidReturnData>;
     // might need to remove after fuel indexer
+
+    // might need to remove after fuel indexer
+    // get highest bid (Contract)
+    #[storage(read)]
+    fn get_highest_bid(auction_id: u64) -> u64;
 }
 
 abi NFT {

@@ -51,6 +51,7 @@ storage {
     // get users listed nft (Contract)
     owner_nft_map: StorageMap<Identity, Option<Vec<(ContractId, u64)>>> = StorageMap {},
     // might need to remove after fuel indexer 
+    highest_bid: StorageMap<u64, u64> = StorageMap {}
 }
 
 impl EnglishAuction for Contract {
@@ -114,6 +115,12 @@ impl EnglishAuction for Contract {
         auction.bid_asset = total_bid;
         storage.deposits.insert((sender, auction_id), Option::Some(auction.bid_asset));
         storage.auctions.insert(auction_id, Option::Some(auction));
+
+        let highest_bid = storage.highest_bid.get(auction_id);
+
+        if highest_bid < bid_asset.amount() {
+            storage.highest_bid.insert(auction_id, bid_asset.amount());
+        }
 
         log(BidEvent {
             amount: auction.bid_asset.amount(),
@@ -400,6 +407,14 @@ impl EnglishAuction for Contract {
         };
 
         return Option::Some(return_data);
+    }
+    // might need to remove after fuel indexer
+
+    // might need to remove after fuel indexer
+    // get highest bid (Contract)
+    #[storage(read)]
+    fn get_highest_bid(auction_id: u64) -> u64 {
+        storage.highest_bid.get(auction_id)
     }
     // might need to remove after fuel indexer
 }
