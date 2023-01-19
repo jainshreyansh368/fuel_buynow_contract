@@ -55,6 +55,7 @@ storage {
     offer_nft: StorageMap<(Option<ContractId>, u64), OfferNft> = StorageMap {},
     // might need to remove after fuel indexer 
     listed_nft: StorageVec<(ContractId, u64)> = StorageVec {},
+    offers: StorageMap<(ContractId, u64), Option<Vec<OfferNft>>> = StorageMap {},
 }
 
 impl NftMarketplace for Contract {
@@ -214,6 +215,16 @@ impl NftMarketplace for Contract {
             price: price,
         };
         storage.offer_nft.insert((Option::Some(id), token_id), nft);
+
+        if storage.offers.get((id, token_id)).is_none() {
+            let mut new_offer = Vec::<OfferNft>::new();
+            new_offer.push(nft);
+            storage.offers.insert((id, token_id), Option::Some(new_offer));
+        } else {
+            let mut update_previous_offers = storage.offers.get((id, token_id)).unwrap();
+            update_previous_offers.push(nft);
+            storage.offers.insert((id, token_id), Option::Some(update_previous_offers));
+        }
        
         log(NFTOfferEvent {
             offerer: msg_sender().unwrap(),
@@ -479,5 +490,29 @@ impl NftMarketplace for Contract {
     #[storage(read)]
     fn is_nft_listed(id : ContractId, token_id: u64 ) -> bool {
         storage.nft_listed.get((Option::Some(id), token_id))
+    }
+
+    // might need to remove after fuel indexer
+    // fetch offers
+    #[storage(read)]
+    fn get_all_offers(id : ContractId, token_id: u64, set: u64) -> [OfferNft; 20] {
+        let mut index = set*20;
+
+        let dummy_offer = OfferNft{
+            offerer: Option::Some(Identity::Address(Address::from(0x0000000000000000000000000000000000000000000000000000000000000000))),
+            price: 0,
+        };
+
+        let mut ret_arr = [dummy_offer; 20];
+
+        let storage_offers = storage.offers.get((id, token_id)).unwrap();
+
+        while index < storage_offers.len() && index < set*20 + 20 {
+            ret_arr[index] = storage_offers.get(index).unwrap();
+        
+            index = index + 1;
+        }
+
+        return ret_arr;
     }
 }
