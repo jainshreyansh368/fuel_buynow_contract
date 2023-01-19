@@ -495,20 +495,19 @@ impl NftMarketplace for Contract {
     // might need to remove after fuel indexer
     // fetch offers
     #[storage(read)]
-    fn get_all_offers(id : ContractId, token_id: u64, set: u64) -> [OfferNft; 20] {
+    fn get_all_offers(id : ContractId, token_id: u64, set: u64) -> [(Identity, u64); 20] {
         let mut index = set*20;
 
-        let dummy_offer = OfferNft{
-            offerer: Option::Some(Identity::Address(Address::from(0x0000000000000000000000000000000000000000000000000000000000000000))),
-            price: 0,
-        };
+        let offerer = Identity::Address(Address::from(0x0000000000000000000000000000000000000000000000000000000000000000));
+        let price = 0;
 
-        let mut ret_arr = [dummy_offer; 20];
+        let mut ret_arr = [(offerer, price); 20];
 
         let storage_offers = storage.offers.get((id, token_id)).unwrap();
 
         while index < storage_offers.len() && index < set*20 + 20 {
-            ret_arr[index] = storage_offers.get(index).unwrap();
+            let data = storage_offers.get(index).unwrap();
+            ret_arr[index] = (data.offerer.unwrap(), data.price);
         
             index = index + 1;
         }

@@ -81,5 +81,5 @@ abi NftMarketplace {
     // might need to remove after fuel indexer
     // fetch offers
     #[storage(read)]
-    fn get_all_offers(id : ContractId, token_id: u64, set: u64) -> [OfferNft; 20];
+    fn get_all_offers(id : ContractId, token_id: u64, set: u64) -> [(Identity, u64); 20];
 }
