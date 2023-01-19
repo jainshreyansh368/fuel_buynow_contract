@@ -475,5 +475,9 @@ impl NftMarketplace for Contract {
 
         nft_listed.owner
     }
-
+    
+    #[storage(read)]
+    fn is_nft_listed(id : ContractId, token_id: u64 ) -> bool {
+        storage.nft_listed.get((Option::Some(id), token_id))
+    }
 }
