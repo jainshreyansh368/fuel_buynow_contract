@@ -77,4 +77,9 @@ abi NftMarketplace {
     // check if listed nft
     #[storage(read)]
     fn is_nft_listed(id : ContractId, token_id: u64 ) -> bool;
+
+    // might need to remove after fuel indexer
+    // fetch offers
+    #[storage(read)]
+    fn get_all_offers(id : ContractId, token_id: u64, set: u64) -> [OfferNft; 20];
 }
