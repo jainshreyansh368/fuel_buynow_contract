@@ -32,9 +32,9 @@ pub struct MintEvent {
     /// The owner of the newly minted tokens.
     owner: Identity,
     /// The starting range of token ids that have been minted in this transaction.
-    token_id_start: u64,
+    token_id: u64,
     /// The total number of tokens minted in this transaction.
-    total_tokens: u64,
+    token_metadata: TokenMetaData,
 }
 
 abi NFT {
@@ -147,7 +147,7 @@ abi NFT {
     /// * When the sender attempts to mint more tokens than total supply.
     /// * When the sender is not the admin and `access_control` is set.
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[46], creators: [Identity; 5]);
+    fn mint(to: Identity, name: str[35], metadata_uri: str[46], creators: [Identity; 5]);
 
     /// Returns the metadata for the token specified
     ///

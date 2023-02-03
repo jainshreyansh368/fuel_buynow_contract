@@ -156,9 +156,9 @@ impl NFT for Contract {
     }
 
     #[storage(read, write)]
-    fn mint(amount: u64, to: Identity, name: str[35], metadata_uri: str[46], creators: [Identity; 5]) {
+    fn mint(to: Identity, name: str[35], metadata_uri: str[46], creators: [Identity; 5]) {
         let tokens_minted = storage.tokens_minted;
-        let total_mint = tokens_minted + amount;
+        let total_mint = tokens_minted + 1;
         // The current number of tokens minted plus the amount to be minted cannot be
         // greater than the total supply
         require(storage.max_supply >= total_mint, InputError::NotEnoughTokensToMint);
@@ -169,9 +169,10 @@ impl NFT for Contract {
 
         // Mint as many tokens as the sender has asked for
         let mut index = tokens_minted;
+        let new_token_metadata = TokenMetaData::new(name, metadata_uri, creators);
         while index < total_mint {
             // Create the TokenMetaData for this new token
-            storage.meta_data.insert(index, TokenMetaData::new(name, metadata_uri, creators));
+            storage.meta_data.insert(index, new_token_metadata);
             storage.owners.insert(index, Option::Some(to));
             index += 1;
 
@@ -190,14 +191,14 @@ impl NFT for Contract {
             // might need to remove after fuel indexer
         }
 
-        storage.balances.insert(to, storage.balances.get(to) + amount);
+        storage.balances.insert(to, storage.balances.get(to) + 1);
         storage.tokens_minted = total_mint;
-        storage.total_supply += amount;
+        storage.total_supply += 1;
 
         log(MintEvent {
             owner: to,
-            token_id_start: tokens_minted,
-            total_tokens: amount,
+            token_id: index,
+            token_metadata: new_token_metadata,
         });
     }
 
