@@ -43,3 +43,10 @@ pub struct NFTBought {
     token_id: u64,
     price: u64,
 }
+
+pub struct TokenMetaData {
+    // This is left as an example. Support for dynamic length string is needed here
+    metadata_uri: str[46],
+    name: str[35],
+    creators: [Identity; 5],
+}

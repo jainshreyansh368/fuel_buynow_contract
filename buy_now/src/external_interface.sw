@@ -1,5 +1,8 @@
 library external_interface;
 
+dep data_structure;
+use data_structure::TokenMetaData;
+
 abi externalAbi {
     /// Returns the user which owns the specified token.
     ///
@@ -50,4 +53,7 @@ abi externalAbi {
     /// * When the sender is not the token's owner.
     #[storage(read, write)]
     fn approve(approved: Identity, token_id: u64);
+
+    #[storage(read)]
+    fn meta_data(token_id: u64) -> TokenMetaData;
 }
